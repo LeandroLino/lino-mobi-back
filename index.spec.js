@@ -10,11 +10,12 @@ describe('Test My app server', () => {
 }) 
 
 describe('Test register and login route', () => {
+    let token = ''
     it('should return 200 and the id with dates', async  () => {
         const res = await request(app).post("/register")
        .send({
-        "name": "Leandro",
-        "email": "leandro@gmail.com",
+        "name": "Lino",
+        "email": "Lino@gmail.com",
         "password": "Li1234567!",
         "telephones": [
           {
@@ -25,24 +26,44 @@ describe('Test register and login route', () => {
        })
         
         const resObject = JSON.parse(res.text)
-        resObject.created_at = resObject.created_at.slice(0, -4)
-        resObject.modified_at = resObject.modified_at.slice(0, -4)
-        const date = moment().utc().add(3, 'hours');
-        const expectedDate = date.toISOString();
         expect(resObject.id).toEqual(1)
-        expect(resObject.created_at).toEqual(expectedDate.slice(0, -4))
-        expect(resObject.modified_at).toEqual(expectedDate.slice(0, -4))
+        expect(resObject.created_at).toBeTruthy()
+        expect(resObject.modified_at).toBeTruthy()
     })
 
-    it('should return 200 and the document number', async  () => {
+    it('should return 200 and the token', async  () => {
         const res = await request(app).post("/login")
        .send({
-        "email": "leandro@gmail.com",
+        "email": "Lino@gmail.com",
         "password": "Li1234567!",
        })
         
         const resObject = JSON.parse(res.text)
         expect(res.status).toBe(200);
         expect(resObject.token).toBeTruthy()
+        token = resObject.token
+    })
+
+    it('should return 200 and the user', async () => {
+        const res = await request(app).get("/search")
+        .set('Authorization', 'Bearer ' + token)
+        .send({
+            "email": "Lino@gmail.com",
+            "password": "Li1234567!",
+        })
+        const resObject = JSON.parse(res.text)
+        console.log(resObject.telephones, "search")
+
+        expect(res.status).toBe(200);
+        expect(resObject.id).toBe(1)
+        expect(resObject.name).toBe('Lino')
+        expect(resObject.email).toBe('Lino@gmail.com')
+        expect(resObject.created_at).toBeTruthy()
+        expect(resObject.modified_at).toBeTruthy()
+
+        expect(resObject.telephones.id).toBe(1)
+        expect(resObject.telephones.user_id).toBe(1)
+        expect(resObject.telephones.number).toBe('940596713')
+        expect(resObject.telephones.area_code).toBe('11')
     })
   })

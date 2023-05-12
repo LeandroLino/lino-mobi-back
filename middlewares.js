@@ -12,14 +12,13 @@ async function verifyToken(req, res, next) {
     if (err) {
       return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
     }
-  
-    req.userId = decoded.userId;
+    req.body = decoded;
     next();
     });
 }
   
 async function hasUser(req, res, next) {
-    const hasUser = await db.getUser(req.body.email);
+    const hasUser = await db.getUserByEmail(req.body.email);
     if(hasUser){
         res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
     }

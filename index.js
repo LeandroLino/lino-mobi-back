@@ -4,7 +4,6 @@ const bodyParser = require('body-parser')
 const utils = require('./utils')
 const middlewares = require('./middlewares')
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 
 const cors = require('cors');
 app.use(cors());
@@ -43,6 +42,19 @@ app.post('/login', async (req, res, next) => {
 
     const token = jwt.sign({id: user.id, email: req.body.email}, process.env.SECRET_KEY_JWT, { expiresIn: '120h' });
     res.status(200).send({token: token})
+    next()
+})
+
+app.get('/search', middlewares.verifyToken, async (req, res, next) => {
+    const user = await db.getUserByEmail(req.body.email)
+    const telephones = await db.getTelephonesByUserId(req.body.id)
+    user.telephones = telephones
+    delete user.password;
+
+    delete telephones.created_at;
+    delete telephones.modified_at;
+
+    res.status(200).send(user)
     next()
 })
 

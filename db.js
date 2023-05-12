@@ -10,7 +10,7 @@ function connect() {
 
 const db = connect()
 
-function getUser(email) {
+function getUserByEmail(email) {
     return new Promise((resolve, reject) => {
       db.execute('SELECT * FROM users WHERE email = ?', [email], (err, results, _) => {
         if (err) {
@@ -53,7 +53,7 @@ async function createUser(name, email, hashPassword, telephones) {
   const values = [name, email, hashPassword];
   const sql = `INSERT INTO users (name, email, password) VALUES (?, ?, ?)`;
   await db.execute(sql, values);
-  const user = await getUser(email)
+  const user = await getUserByEmail(email)
 
   for (i of telephones) {
     createTelephone(user.id, i.area_code, i.number)
@@ -62,7 +62,7 @@ async function createUser(name, email, hashPassword, telephones) {
 }
 
 async function loginUser(email, password){
-    const user = await getUser(email);
+    const user = await getUserByEmail(email);
     const isCorretPassword = await utils.matchPassword(password, user.password)
   if (isCorretPassword) {
       return user
@@ -76,5 +76,6 @@ module.exports = {
     connect,
     createUser,
     loginUser,
-    getUser,
+    getUserByEmail,
+    getTelephonesByUserId
 }
