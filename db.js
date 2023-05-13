@@ -22,6 +22,54 @@ function getUserByEmail(email) {
     });
 }
 
+async function updateUserById(id, updateData) {
+  return new Promise((resolve, reject) => {
+    db.execute('UPDATE users SET name = ?, password = ?, email = ? WHERE id = ?', [updateData.name, updateData.password, updateData.email, id], (err, results, _) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+async function updateTelephoneById(id, updateData) {
+  return new Promise((resolve, reject) => {
+    db.execute('UPDATE telephones SET number = ?, area_code = ? WHERE id = ?', [updateData.number, updateData.area_code, id], (err, results, _) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+async function deleteTelephoneById(id) {
+  return new Promise((resolve, reject) => {
+    db.execute('DELETE FROM telephones WHERE id = ?', [id], (err, results, _) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+function deleteUserById(id) {
+  return new Promise((resolve, reject) => {
+    db.execute('DELETE FROM users WHERE id = ?', [id], (err, results, _) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results[0]);
+      }
+    });
+  });
+}
+
 function getTelephonesByUserId(id) {
   return new Promise((resolve, reject) => {
     db.execute('SELECT * FROM telephones WHERE user_id = ?', [id], (err, results, _) => {
@@ -34,9 +82,21 @@ function getTelephonesByUserId(id) {
   });
 }
 
-async function createTelephone(userId, areaCode, number) {
-    const values = [userId, areaCode, number];
-  const sql = `INSERT INTO telephones (user_id, area_code, number) VALUES (?, ?, ?)`;
+function getTelephonesById(id) {
+  return new Promise((resolve, reject) => {
+    db.execute('SELECT * FROM telephones WHERE id = ?', [id], (err, results, _) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results[0]);
+      }
+    });
+  });
+}
+
+async function createTelephone(userId, areaCode, number, name) {
+    const values = [userId, areaCode, number, name];
+  const sql = `INSERT INTO telephones (user_id, area_code, number, name) VALUES (?, ?, ?, ?)`;
   try {
     await db.execute(sql, values);
   } catch {
@@ -56,7 +116,7 @@ async function createUser(name, email, hashPassword, telephones) {
   const user = await getUserByEmail(email)
 
   for (i of telephones) {
-    createTelephone(user.id, i.area_code, i.number)
+    createTelephone(user.id, i.area_code, i.number, i.name)
   }
   return user
 }
@@ -67,6 +127,7 @@ async function loginUser(email, password){
   if (isCorretPassword) {
       return user
   }
+
   return {
     code: 401,
     message: "Invalid credentials"}
@@ -77,5 +138,10 @@ module.exports = {
     createUser,
     loginUser,
     getUserByEmail,
-    getTelephonesByUserId
+    getTelephonesByUserId,
+    deleteUserById,
+    updateUserById,
+    getTelephonesById,
+    updateTelephoneById,
+    deleteTelephoneById
 }

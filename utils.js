@@ -22,8 +22,23 @@ function validatePassword(password) {
   return regex.test(password);
 }
 
+function validateTelephoneNumber(numero) {
+  numero = numero.replace(/\D/g, '');
+  
+  if (!/^(\d{8}|\d{9}|\d{10}|\d{11})$/.test(numero)) {
+    return false;
+  }
+  
+  if (!/^(9|[2-5])/.test(numero)) {
+    return false;
+  }
+  
+  return true;
+}
+
 module.exports = {
     encryptPassword,
     matchPassword,
-    validatePassword
+    validatePassword,
+    validateTelephoneNumber
 };

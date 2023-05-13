@@ -17,21 +17,22 @@ app.get('/', (req, res, next)=>{
     next()
 })
 
-app.post('/register', middlewares.hasUser ,async (req, res, next) => {
-    if (!utils.validatePassword(req.body.password)) res.status(400).send({
-        message: "The password do not match with the requirements",
-        code: 400})
-   
+app.post('/user/register', middlewares.hasUser ,async (req, res, next) => {
+    if (!utils.validatePassword(req.body.password)) {
+        res.status(400).send({
+            message: "The password do not match with the requirements.",
+            code: 400
+        })
+        return
+    }
+
     const hashPassword = await utils.encryptPassword(req.body.password)
     const user = await db.createUser(req.body.name, req.body.email, hashPassword, req.body.telephones)
-    res.status(200).send({id: user.id, created_at: user.created_at, modified_at: user.modified_at})
+    res.status(200).send({ id: user.id, created_at: user.created_at, modified_at: user.modified_at })
     next()
 })
 
-app.post('/login', async (req, res, next) => {
-    if (!utils.validatePassword(req.body.password)) res.status(400).send({
-        message: "The password do not match with the requirements",
-        code: 400})
+app.post('/user/login', async (req, res, next) => {
     const user = await db.loginUser(req.body.email, req.body.password)
 
     if (user.code) {
@@ -45,9 +46,10 @@ app.post('/login', async (req, res, next) => {
     next()
 })
 
-app.get('/search', middlewares.verifyToken, async (req, res, next) => {
-    const user = await db.getUserByEmail(req.body.email)
-    const telephones = await db.getTelephonesByUserId(req.body.id)
+app.get('/user/search', middlewares.verifyToken, async (req, res, next) => {
+    const user = await db.getUserByEmail(req.body.decoded.email)
+    
+    const telephones = await db.getTelephonesByUserId(req.body.decoded.id)
     user.telephones = telephones
     delete user.password;
 
@@ -55,6 +57,56 @@ app.get('/search', middlewares.verifyToken, async (req, res, next) => {
     delete telephones.modified_at;
 
     res.status(200).send(user)
+    next()
+})
+
+app.delete('/user/delete', middlewares.verifyToken, async (req, res, next) => {
+    await db.deleteUserById(req.body.decoded.id)
+    res.status(202).send({})
+    next()
+})
+
+app.put('/user/update', middlewares.verifyToken, async (req, res, next) => {
+    const userId = req.body.decoded.id
+    const user = await db.getUserByEmail(req.body.decoded.email)
+    delete req.body.decoded
+
+    Object.assign(req.body, user)
+    if (req.body.password) {
+        if (!utils.validatePassword(req.body.password)) {
+            res.status(400).send({
+                    message: "The password do not match with the requirements.",
+                    code: 400
+            })
+            return
+        }
+
+        req.body.password = await utils.encryptPassword(req.body.password)
+    }
+    const newUser = db.updateUserById(userId, req.body)
+    res.status(202).send(newUser)
+    next()
+})
+
+app.put('/telephone/update/:id', middlewares.verifyToken, async (req, res, next) => {
+    if (!utils.validateTelephoneNumber(req.body.number)) {
+        res.status(400).send({ code: 400, message: "The telephone do not match with the requirements." })
+        return
+    }
+    const telephoneId = req.params.id;
+    const telephone = await db.getTelephonesById(telephoneId)
+    telephone.number = req.body.number
+    telephone.area_code = req.body.area_code
+    telephone.name = req.body.name
+    await db.updateTelephoneById(telephoneId, {number: telephone.number, area_code: telephone.area_code})
+    res.status(202).send(telephone)
+    next()
+})
+
+app.delete('/telephone/delete/:id', middlewares.verifyToken, async (req, res, next) => {
+    const telephoneId = req.params.id
+    await db.deleteTelephoneById(telephoneId)
+    res.status(202).send({})
     next()
 })
 
