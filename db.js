@@ -95,20 +95,32 @@ function getTelephonesById (id) {
 }
 
 async function createTelephone (userId, areaCode, number, name) {
-  const values = [userId, areaCode, number, name]
-  const sql = 'INSERT INTO telephones (user_id, area_code, number, name) VALUES (?, ?, ?, ?)'
-  try {
-    await db.execute(sql, values)
-  } catch {
+  if (await userHasTelephone(userId, areaCode, number)) {
     return {
-      code: 400,
-      message: 'Cannot create this telephone'
+      code: 403,
+      message: 'This user already has this phone number'
     }
   }
-  return {
-    code: 200,
-    message: 'Telephone has been created'
-  }
+  const values = [userId, areaCode, number, name]
+  const sql = 'INSERT INTO telephones (user_id, area_code, number, name) VALUES (?, ?, ?, ?)'
+  db.execute(sql, values)
+  const telephone = userHasTelephone(userId, areaCode, number)
+  return telephone
+}
+
+async function userHasTelephone (userId, areaCode, number, name) {
+  const values = [userId, areaCode, number]
+  const sql = 'SELECT * FROM telephones WHERE user_id = ? AND area_code = ? AND number = ?'
+
+  return new Promise((resolve, reject) => {
+    db.execute(sql, values, (err, results, _) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(results[0])
+      }
+    })
+  })
 }
 
 async function createUser (name, email, hashPassword, telephones) {
@@ -116,9 +128,10 @@ async function createUser (name, email, hashPassword, telephones) {
   const sql = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)'
   await db.execute(sql, values)
   const user = await getUserByEmail(email)
-
-  for (const i of telephones) {
-    createTelephone(user.id, i.area_code, i.number, i.name)
+  if (telephones) {
+    for (const i of telephones) {
+      createTelephone(user.id, i.area_code, i.number, i.name)
+    }
   }
   return user
 }
@@ -146,5 +159,7 @@ module.exports = {
   updateUserById,
   getTelephonesById,
   updateTelephoneById,
-  deleteTelephoneById
+  deleteTelephoneById,
+  createTelephone,
+  userHasTelephone
 }
