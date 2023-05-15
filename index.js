@@ -74,7 +74,6 @@ app.put('/user/update', middlewares.validatePayload, middlewares.verifyToken, as
   if (!user) {
     res.status(404).send({ code: 404, message: 'Not found user' })
   }
-  Object.assign(req.body, user)
   if (req.body.password) {
     if (!utils.validatePassword(req.body.password)) {
       res.status(400).send({
@@ -86,11 +85,13 @@ app.put('/user/update', middlewares.validatePayload, middlewares.verifyToken, as
 
     req.body.password = await utils.encryptPassword(req.body.password)
   }
+  const token = jwt.sign({ id: userId, email: req.body.email }, process.env.SECRET_KEY_JWT, { expiresIn: '120h' })
+
   await db.updateUserById(userId, req.body)
   const newUser = await db.getUserByEmail(user.email)
   delete newUser.password
 
-  res.status(200).send(newUser)
+  res.status(200).send({ user: newUser, token })
   next()
 })
 
@@ -122,8 +123,8 @@ app.delete('/telephone/delete/:id', middlewares.verifyToken, async (req, res, ne
 
 app.post('/telephone/create/', middlewares.validatePayload, middlewares.verifyToken, async (req, res, next) => {
   const response = await db.createTelephone(req.body.decoded.id, req.body.area_code, req.body.number, req.body.name)
-  if (response.code === 403) {
-    res.status(403).send(response)
+  if (response.code) {
+    res.status(response.code).send(response)
     return
   }
   res.status(200).send(response)

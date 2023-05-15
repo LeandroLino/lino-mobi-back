@@ -169,11 +169,14 @@ Authorization: Bearer <Token JWT gerado na rota de login>
 **RESPONSE STATUS -> HTTP 200**
 ```
 {
-	"id": 1,
+	"user": {
+    "id": <ID>,
 	"name": "Lino",
-	"email": "linoa22@gmail.com",
+	"email": "leandro1@gmail.com",
 	"created_at": <Date>,
 	"modified_at": <Date>
+    },
+    "token": <Token JWT gerado automaticamente>
 }
 ```
 
@@ -304,10 +307,18 @@ Durante o processo de criação eu tive muitas ideias de como melhorar o projeto
 
 desenvolvendo algumas features, uma coisa que eu senti falta foi de testes com banco de dados mockado, e
 
-tabela com relaçõe entre elas.
+tabela com relações entre elas.
 
 Acredito que o projeto poderia ser bem mais estruturado na questão de informações, não lidar somente telefones mas também lidar 
 
 com outros meios de contatos.
 
 Uma outra ideia que acho válido é de criar um front end futuramente.
+
+Uma coisa que eu considero importante seria a implementação dessa api utilizando typescript, algo que eu considero relacionado foi
+
+a validação dos payloads utilizando o schema e a biblioteca 'Joi'.
+
+Os testes poderiam vaidar exeptions, cenários como: Registrar o mesmo usuário deve retornar 403, um update de um usuário não existe 
+
+deve retornar 404.

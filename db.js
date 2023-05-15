@@ -22,6 +22,18 @@ function getUserByEmail (email) {
   })
 }
 
+function getUserById (id) {
+  return new Promise((resolve, reject) => {
+    db.execute('SELECT * FROM users WHERE id = ?', [id], (err, results, _) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(results[0])
+      }
+    })
+  })
+}
+
 async function updateUserById (id, updateData) {
   return new Promise((resolve, reject) => {
     db.execute('UPDATE users SET name = ?, password = ?, email = ? WHERE id = ?', [updateData.name, updateData.password, updateData.email, id], (err, results, _) => {
@@ -95,6 +107,12 @@ function getTelephonesById (id) {
 }
 
 async function createTelephone (userId, areaCode, number, name) {
+  if (!await getUserById(userId)) {
+    return {
+      code: 404,
+      message: 'User not found'
+    }
+  }
   if (await userHasTelephone(userId, areaCode, number)) {
     return {
       code: 403,

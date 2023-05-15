@@ -40,10 +40,7 @@ describe('Test My app server', () => {
 
     it('should return 200 and the token', async () => {
       const res = await request(app).post('/user/login')
-        .send({
-          email: 'Lino@gmail.com',
-          password: 'Li1234567!'
-        })
+        .send(userLogin)
 
       const resObject = JSON.parse(res.text)
       expect(res.status).toBe(200)
@@ -74,17 +71,17 @@ describe('Test My app server', () => {
       const res = await request(app).put('/user/update')
         .set('Authorization', 'Bearer ' + token)
         .send({
-          name: 'Lino',
-          email: 'Lino7@gmail.com',
+          name: 'Leandro',
+          email: 'Lino@gmail.com',
           password: 'Li1234567!'
         })
-      expect(res.status).toBe(202)
-      const resObject = JSON.parse(res.text)
-
-      console.log(resObject)
+      expect(res.status).toBe(200)
     })
 
     it('should return 202 and delete the user', async () => {
+      const response = await request(app).post('/user/login').send(userLogin)
+      token = JSON.parse(response.text).token
+
       const res = await request(app).delete('/user/delete')
         .set('Authorization', 'Bearer ' + token)
 
@@ -113,7 +110,7 @@ describe('Test My app server', () => {
 
       const resObject = JSON.parse(res.text)
 
-      expect(res.status).toEqual(202)
+      expect(res.status).toEqual(200)
       expect(resObject.id).toEqual(1)
       expect(resObject.name).toBe('Lino')
       expect(resObject.number).toBe('940596723')
