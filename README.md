@@ -2,6 +2,7 @@
 
 Projeto para teste tecnico da [mobi](https://mobi.com.br/)
 
+Notion com query do banco de dados [Notion](https://moored-cloth-8a0.notion.site/Mobi-teste-t-cnico-2e97d99bba19451c9c5868e363d6da51)
 
 Não é necessário baixar o projeto para pode testar a API, ela está hospedada neste [link](lino-mobi-back-production.up.railway.app)
 
