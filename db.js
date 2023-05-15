@@ -3,6 +3,7 @@ const mysql = require('mysql2')
 const utils = require('./utils')
 
 function connect () {
+  console.log(process.env.DATABASE_URL)
   const connection = mysql.createConnection(process.env.DATABASE_URL)
   console.log('Connected to PlanetScale!')
   return connection
