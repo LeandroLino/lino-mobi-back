@@ -1,10 +1,19 @@
-# Lino mobi
+# Lino mobi teste técnico
+<br>
+<img width="719" alt="image" src="https://github.com/LeandroLino/lino-mobi-back/assets/72203926/ad5d9ee3-186f-4bd5-a453-d804a3f748b5">
+
 
 Projeto para teste tecnico da [mobi](https://mobi.com.br/)
 
 Notion com query do banco de dados [Notion](https://moored-cloth-8a0.notion.site/Mobi-teste-t-cnico-2e97d99bba19451c9c5868e363d6da51)
 
-Não é necessário baixar o projeto para pode testar a API, ela está hospedada neste [link](lino-mobi-back-production.up.railway.app)
+Diagrama do banco de dados
+<br>
+<img width="610" alt="image" src="https://github.com/LeandroLino/lino-mobi-back/assets/72203926/a8b412d2-77c2-402a-87c9-dc9b5492fd62">
+
+
+
+Não é necessário baixar o projeto para pode testar a API, ela está hospedada neste [link](https://lino-mobi-back-production.up.railway.app)
 
 ## Instalação
 
