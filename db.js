@@ -3,7 +3,6 @@ const mysql = require('mysql2')
 const utils = require('./utils')
 
 function connect () {
-  console.log(process.env.DATABASE_URL)
   const connection = mysql.createConnection(process.env.DATABASE_URL)
   console.log('Connected to PlanetScale!')
   return connection
@@ -139,6 +138,12 @@ async function createUser (name, email, hashPassword, telephones) {
 
 async function loginUser (email, password) {
   const user = await getUserByEmail(email)
+  if (!user) {
+    return {
+      code: 404,
+      message: 'User not found'
+    }
+  }
   const isCorretPassword = await utils.matchPassword(password, user.password)
   if (isCorretPassword) {
     return user

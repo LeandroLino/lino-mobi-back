@@ -33,16 +33,14 @@ app.post('/user/register', middlewares.validatePayload, middlewares.hasUser, asy
 })
 
 app.post('/user/login', middlewares.validatePayload, async (req, res, next) => {
-  const user = await db.loginUser(req.body.email, req.body.password)
+  const response = await db.loginUser(req.body.email, req.body.password)
 
-  if (user.code) {
-    res.status(401).send({
-      message: 'Unauthorized',
-      code: 401
-    })
+  if (response.code) {
+    res.status(response.code).send(response)
+    return
   }
 
-  const token = jwt.sign({ id: user.id, email: req.body.email }, process.env.SECRET_KEY_JWT, { expiresIn: '120h' })
+  const token = jwt.sign({ id: response.id, email: req.body.email }, process.env.SECRET_KEY_JWT, { expiresIn: '120h' })
   res.status(200).send({ token })
   next()
 })
@@ -52,6 +50,7 @@ app.get('/user/search', middlewares.verifyToken, async (req, res, next) => {
 
   const telephones = await db.getTelephonesByUserId(req.body.decoded.id)
   user.telephones = telephones
+
   delete user.password
 
   delete telephones.created_at
@@ -87,8 +86,11 @@ app.put('/user/update', middlewares.validatePayload, middlewares.verifyToken, as
 
     req.body.password = await utils.encryptPassword(req.body.password)
   }
-  const newUser = db.updateUserById(userId, req.body)
-  res.status(202).send(newUser)
+  await db.updateUserById(userId, req.body)
+  const newUser = await db.getUserByEmail(user.email)
+  delete newUser.password
+
+  res.status(200).send(newUser)
   next()
 })
 
@@ -107,7 +109,7 @@ app.put('/telephone/update/:id', middlewares.validatePayload, middlewares.verify
   telephone.area_code = req.body.area_code
   telephone.name = req.body.name
   await db.updateTelephoneById(telephoneId, { number: telephone.number, area_code: telephone.area_code })
-  res.status(202).send(telephone)
+  res.status(200).send(telephone)
   next()
 })
 
@@ -124,7 +126,7 @@ app.post('/telephone/create/', middlewares.validatePayload, middlewares.verifyTo
     res.status(403).send(response)
     return
   }
-  res.status(202).send(response)
+  res.status(200).send(response)
   next()
 })
 
