@@ -17,7 +17,7 @@ async function matchPassword (password, userPassword) {
 }
 
 function validatePassword (password) {
-  const regex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/
+  const regex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*()_+\-=\\[\]{};':"\\|,.<>\\/?]{8,}$/
   return regex.test(password)
 }
 
