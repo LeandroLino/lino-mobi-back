@@ -76,6 +76,8 @@ Se o problema persistir você pode trocar o valor `3000` para algum numero como 
 Se mesmo assim continuar, você pode me contactar pelo email: leao.lino7@gmail.com, ou pelo meu 
 celular (11) 940596713
 
+## Documentação dos endpoints
+[Collection download](https://drive.google.com/file/d/1dFr6a8UWBSRdrOINxhUj-J6LRvuyKx4g/view?usp=sharing)
 
 ## POST /user/register/ - Registrando um Usuário:
 Existe uma validação completa do payload e em especifico da senha e do número de telephone
